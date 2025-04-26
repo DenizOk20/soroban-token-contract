@@ -15,9 +15,9 @@ fn check_nonnegative_amount(amount: i128) {
     }
 }
 
-fn is_account_frozen(e:&Env,account:Address) -> bool {
+fn is_account_frozen(e: &Env, account: &Address) -> bool {
     let key = DataKey::Frozen(account.clone());
-    e.storage().instance().get::<_,bool>(&key).unwrap_or(false);
+    e.storage().instance().get::<_, bool>(&key).unwrap_or(false)
 }
 
 fn emit_custom_event(e:&Env,event_type: &str, admin:Address,account:Address) {
@@ -42,7 +42,7 @@ impl Token {
     }
 
     pub fn mint(e:&Env,to:Address,amount:i128) {
-        check_nonnegative_amount(amount)
+        check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
 
@@ -74,8 +74,8 @@ impl Token {
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
-        let key = DataKey::Frozen(account.clone())
-        e.storage().instance().set(&key,&true)
+        let key = DataKey::Frozen(account.clone());
+        e.storage().instance().set(&key,&true);
 
         emit_custom_event(&e, "freeze_account", admin, account);
     }
@@ -164,11 +164,11 @@ impl token::Interface for Token {
     }
 
     fn burn(e:Env,from:Address,amount:i128) {
-        from.require_auth()
+        from.require_auth();
 
-        check_nonnegative_amount(amount)
+        check_nonnegative_amount(amount);
 
-        e.storage().instance().extend_ttl(INSTANCE_LIFETIME_THRESHOLD,INSTANCE_BUMP_AMOUNT)
+        e.storage().instance().extend_ttl(INSTANCE_LIFETIME_THRESHOLD,INSTANCE_BUMP_AMOUNT);
 
         if is_account_frozen(&e,&from) {
             panic!("Hesap dondurulmuş ve token yakılamaz");
