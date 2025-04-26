@@ -30,3 +30,13 @@ pub fn spend_balance(e:&Env,addr:Address,amount:i128) {
     }
     write_balance(e,addr,balance - amount)
 }
+
+pub fn read_total_supply(e: &Env) -> i128 {
+    let key = DataKey::TotalSupply;
+    e.storage().persistent().get::<_, i128>(&key).unwrap_or(0)
+}
+
+pub fn write_total_supply(e: &Env, amount: i128) {
+    let key = DataKey::TotalSupply;
+    e.storage().persistent().set(&key, &amount);
+}

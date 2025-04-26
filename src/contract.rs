@@ -8,6 +8,7 @@ use soroban_sdk::token::{self, Interface as _};
 use soroban_sdk::{contract, contractimpl, Address, Env, String};
 use soroban_token_sdk::metadata::TokenMetadata;
 use soroban_token_sdk::TokenUtils;
+use crate::balance::{read_total_supply, write_total_supply};
 
 fn check_nonnegative_amount(amount: i128) {
     if amount < 0 {
@@ -29,6 +30,14 @@ pub struct Token;
 
 #[contractimpl]
 impl Token {
+    
+    pub fn total_supply(e: Env) -> i128 {
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        read_total_supply(&e)
+    }
+
     pub fn initialize(e:&Env,admin:Address,decimal:u32,name:String,symbol:String) {
         if has_administrator(&e) {
             panic!("already initialized")
@@ -50,6 +59,9 @@ impl Token {
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
+        let total_supply = read_total_supply(&e);
+        write_total_supply(&e, total_supply + amount);
+            
         receive_balance(&e, to.clone(), amount);
         TokenUtils::new(&e).events().mint(admin, to, amount);
     }
@@ -97,6 +109,7 @@ impl Token {
 
 #[contractimpl]
 impl token::Interface for Token {
+
     fn allowance(e: Env, from: Address, spender: Address) -> i128 {
         e.storage()
             .instance()
@@ -174,6 +187,9 @@ impl token::Interface for Token {
             panic!("Hesap dondurulmuş ve token yakılamaz");
         }
 
+        let total_supply = read_total_supply(&e);
+        write_total_supply(&e, total_supply - amount);
+
         spend_balance(&e, from.clone(), amount);
         TokenUtils::new(&e).events().burn(from, amount);
     }
@@ -190,6 +206,9 @@ impl token::Interface for Token {
         if is_account_frozen(&e, &from) {
             panic!("Hesap dondurulmuş ve token yakılamaz");
         }
+
+        let total_supply = read_total_supply(&e);
+        write_total_supply(&e, total_supply - amount);
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);

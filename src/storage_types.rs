@@ -29,4 +29,5 @@ pub enum DataKey {
     State(Address),
     Admin,
     Frozen(Address),
+    TotalSupply,
 }

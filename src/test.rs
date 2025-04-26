@@ -1,11 +1,10 @@
 #![cfg(test)]
 extern crate std;
-
 use crate::{contract::Token, TokenClient};
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    Address, Env, IntoVal, Symbol,
+    Address, Env, IntoVal, Symbol,String
 };
 
 fn create_token<'a>(e: &Env, admin: &Address) -> TokenClient<'a> {
@@ -262,3 +261,22 @@ fn decimal_is_over_max() {
         &"symbol".into_val(&env),
     );
 }
+
+#[test]
+fn test_total_supply() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let admin = Address::generate(&env);
+    let token = TokenClient::new(&env, &env.register_contract(None, Token {}));
+    
+    token.initialize(
+        &admin, 
+        &10u32, 
+        &String::from_str(&env, "Token"), 
+        &String::from_str(&env, "TKN")
+    );
+    
+    assert_eq!(token.total_supply(), 0);
+}
+
