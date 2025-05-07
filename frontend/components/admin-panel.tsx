@@ -2,21 +2,20 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Plus, ShieldAlert, UserCheck, UserX } from "lucide-react"
+import { Loader2, Plus, RefreshCw, ShieldAlert, UserCheck, UserX } from "lucide-react"
 import { useWalletStore } from "@/lib/stores/wallet-store"
-
+import { fetchTotalSupply as fetchSupplyFromAPI } from "@/lib/utils"
 export default function AdminPanel() {
-  const { isConnected, publicKey } = useWalletStore((state) => ({
-    isConnected: state.isConnected,
-    publicKey: state.publicKey,
-  }))
+  const isConnected = useWalletStore((state) => state.isConnected)
+  const publicKey = useWalletStore((state) => state.publicKey)
+
 
   const [mintAddress, setMintAddress] = useState("")
   const [mintAmount, setMintAmount] = useState("")
@@ -28,6 +27,19 @@ export default function AdminPanel() {
 
   const [adminAddress, setAdminAddress] = useState("")
   const [isAddingAdmin, setIsAddingAdmin] = useState(false)
+
+  const [totalSupply, setTotalSupply] = useState<string>("Loading...")
+  const [isLoadingSupply, setIsLoadingSupply] = useState<boolean>(false)
+
+  const assetCode = "USDC";
+  const issuer = "GBYWYOIRJULY22LQBIC442ORKXDTENEO2VQVFHPASBYDMGBACPQHXSOF";
+
+  const fetchTotalSupply = useCallback(async () => {
+    setIsLoadingSupply(true)
+    const supply = await fetchSupplyFromAPI(assetCode, issuer)
+    setTotalSupply(supply)
+    setIsLoadingSupply(false)
+  }, [])
 
   const { toast } = useToast()
 
@@ -339,6 +351,34 @@ export default function AdminPanel() {
           </form>
         </CardContent>
       </Card>
+
+      <Card>
+      <CardHeader>
+        <CardTitle>Total Token Supply</CardTitle>
+        <CardDescription>Displays the current total supply of tokens</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <div className="text-2xl font-semibold">
+            {isLoadingSupply ? (
+              <Loader2 className="animate-spin w-5 h-5 inline-block" />
+            ) : (
+              totalSupply ?? "N/A"
+            )}
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={fetchTotalSupply}
+            disabled={isLoadingSupply}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+
     </div>
   )
 }

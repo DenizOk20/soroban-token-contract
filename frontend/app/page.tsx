@@ -22,9 +22,9 @@ export default function Home() {
         <div className="container py-6">
           <Tabs defaultValue="dashboard" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="admin">Admin Panel</TabsTrigger>
-              <TabsTrigger value="history">Transaction History</TabsTrigger>
+              <TabsTrigger className="pointer" value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger className="pointer" value="admin">Admin Panel</TabsTrigger>
+              <TabsTrigger className="pointer" value="history">Transaction History</TabsTrigger>
             </TabsList>
             <TabsContent value="dashboard" className="space-y-4">
               <Suspense fallback={<DashboardSkeleton />}>

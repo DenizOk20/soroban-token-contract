@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, RefreshCw, Send, Trash2 } from "lucide-react"
-import { useWalletStore } from "@/lib/stores/wallet-store"
+import { useWalletStore } from "@/store/wallet-store"
 import { formatTokenAmount } from "@/lib/utils"
 
 export default function Dashboard() {
